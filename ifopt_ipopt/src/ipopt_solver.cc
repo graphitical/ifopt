@@ -115,10 +115,4 @@ IpoptSolver::GetTotalWallclockTime ()
   return ipopt_app_->Statistics()->TotalWallclockTime();
 }
 
-int
-IpoptSolver::GetReturnStatus ()
-{
-  return status_;
-}
-
 } /* namespace ifopt */
