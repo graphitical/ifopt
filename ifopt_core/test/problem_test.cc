@@ -150,6 +150,27 @@ TEST(Problem, GetJacobianOfConstraints)
 }
 
 
+TEST(Problem, GetHessionOfConstraints)
+{
+  Problem nlp;
+  nlp.AddVariableSet(std::make_shared<ExVariables>());
+  nlp.AddConstraintSet(std::make_shared<ExConstraint>("constraint1"));
+  nlp.AddConstraintSet(std::make_shared<ExConstraint>("constraint2"));
+
+  double x[2] = { 2.0, 3.0 };
+  auto hes = nlp.GetHessianOfConstraints();
+  EXPECT_EQ(nlp.GetNumberOfOptimizationVariables(), hes.cols());
+  EXPECT_EQ(nlp.GetNumberOfOptimizationVariables(), hes.rows());
+
+  // TODO: Finish this test
+  EXPECT_EQ(2.0, hes.coeffRef(0, 0)); // d/dx0 (dg/dx0)
+  EXPECT_EQ(0.0, hes.coeffRef(0, 1)); // d/dx0 (dg/dx0)
+  EXPECT_EQ(0.0, hes.coeffRef(1, 0)); // d/dx0 (dg/dx0)
+  EXPECT_EQ(0.0, hes.coeffRef(1, 1)); // d/dx0 (dg/dx0)
+
+}
+
+
 TEST(Problem, EvaluateCostFunction)
 {
   Problem nlp;

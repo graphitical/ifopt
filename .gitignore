@@ -1,2 +1,6 @@
 build
 doc/html
+
+.gitignore
+.vscode
+ifopt.code-workspace

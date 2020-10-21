@@ -50,6 +50,7 @@ public:
   using NLPPtr  = Problem*;
   using VectorXd = Problem::VectorXd;
   using Jacobian = Problem::Jacobian;
+  // TODO: Add Hessian to SNOPT???
 
   /**
    * @brief  Creates an Adapter Object around the problem to conform to the

@@ -83,6 +83,18 @@ public:
   Jacobian GetJacobian() const final;
 
   /**
+   * @brief  The matrix of second derivatives for these constraints and variables.
+   * 
+   * Assuming @c m variables, the returned Hessian has dimensions m x m. Every
+   * row/column pair represents the second derivative of a single constraint
+   * w.r.t. the two optimization variables corresponding to those row/column indices.
+   * 
+   * This function only combines the user-defined hessians from
+   * FillHessianBlock().
+   */
+  Hessian GetHessian() const final;
+
+  /**
    * @brief Set individual Jacobians corresponding to each decision variable set.
    * @param var_set  Set of variables the current Jacobian block belongs to.
    * @param jac_block  Columns of the overall Jacobian affected by var_set.
@@ -99,11 +111,28 @@ public:
    */
   virtual void FillJacobianBlock(std::string var_set, Jacobian& jac_block) const = 0;
 
+  /**
+   * @brief  Set individual Hessian values corresponding to each decision variable set.
+   * @param var_set  Set of variables the current Hessian block belongs to.
+   * @param hes_block  Matrix of the overall Hessian affected by the var_set.
+   * 
+   * A convenience function so the user does not have to worry about the
+   * ordering of variable sets. All that is required is that the user knows
+   * the internal ordering of variables in each individual set and provides
+   * the Hessian of the constraints w.r.t. this set (starting a column 0).
+   * GetHessian() then inserts this matrix at the correct position in the 
+   * overall Hessian.
+   * 
+   * If the constraint doesn't depend on a @c var_set, this function should
+   * simply do nothing.
+   */
+  virtual void FillHessianBlock(std::string var_set, Hessian& hes_block) const = 0;
+
 protected:
   /**
    * @brief Read access to the value of the optimization variables.
    *
-   * This must be used to formulate the constraint violation and Jacobian.
+   * This must be used to formulate the constraint violation, Jacobian and Hessian.
    */
   const VariablesPtr GetVariables() const { return variables_; };
 

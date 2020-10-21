@@ -55,6 +55,7 @@ class IpoptAdapter : public TNLP {
 public:
   using Problem  = ifopt::Problem;
   using VectorXd = Problem::VectorXd;
+  using Hessian  = Problem::Hessian;
   using Jacobian = Problem::Jacobian;
 
   /**
@@ -63,12 +64,13 @@ public:
    *
    * This constructor holds and modifies the passed nlp.
    */
-  IpoptAdapter(Problem& nlp, bool finite_diff = false);
+  IpoptAdapter(Problem& nlp, bool finite_diff = false, bool hes_approx = true);
   virtual ~IpoptAdapter() = default;
 
 private:
   Problem* nlp_; ///< The solver independent problem definition
   bool finite_diff_;  ///< Flag that indicates the "finite-difference-values" option is set
+  bool hes_approx_;   ///< Flag that indicates we want to use IPOPT's internal Hessian approximation routine
 
   /** Method to return some info about the nlp */
   virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
@@ -98,8 +100,18 @@ private:
    *   2) The values of the jacobian (if "values" is not NULL)
    */
   virtual bool eval_jac_g(Index n, const double* x, bool new_x,
-                          Index m, Index nele_jac, Index* iRow, Index *jCol,
+                          Index m, Index nele_hes, Index* iRow, Index *jCol,
                           double* values);
+
+  // TODO: Check and make sure this is correct
+  /** Method to return:
+   *   1) The structure of the hessian (if "values" is NULL)
+   *   2) The values of the hessian (if "values" is not NULL)
+   */
+  virtual bool eval_h(Index n, const double* x, bool new_x, double obj_factor,
+                      Index m, const double* lambda, bool new_lambda,
+                      Index nele_hess, Index* iRow, Index* jCol,
+                      double* values);
 
   /** This is called after every iteration and is used to save intermediate
     *  solutions in the nlp */

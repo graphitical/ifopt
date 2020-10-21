@@ -76,6 +76,37 @@ ConstraintSet::GetJacobian () const
   return jacobian;
 }
 
+// TODO: Come back and check this
+ConstraintSet::Hessian
+ConstraintSet::GetHessian () const
+{
+  const int n_var = variables_->GetRows();
+  Hessian hessian(n_var, n_var);
+
+  int col = 0;
+  Hessian hes;
+  std::vector< Eigen::Triplet<double> > triplet_list;
+
+  for (const auto& vars : variables_->GetComponents()) {
+    int n = vars->GetRows();
+    hes.resize(n, n);
+
+    FillHessianBlock(vars->GetName(), hes);
+    // reserve space for the new elements to reduce memory allocation
+    triplet_list.resize(triplet_list.size()+hes.nonZeros());
+
+    //create triplets for the second derivatives at the correct position in the overall Hessian
+    for (int k=0; k<hes.outerSize(); ++k)
+      for(Hessian::InnerIterator it(hes,k); it; ++it)
+        triplet_list.push_back(Eigen::Triplet<double>(it.row(), col+it.col(), it.value()));
+    col += n;
+  }
+
+  // transform triplet vector into sparse matrix
+  hessian.setFromTriplets(triplet_list.begin(), triplet_list.end());
+  return hessian;
+}
+
 void
 ConstraintSet::LinkWithVariables(const VariablesPtr& x)
 {

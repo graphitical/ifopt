@@ -76,8 +76,13 @@ IpoptSolver::Solve (Problem& nlp)
   ipopt_app_->Options()->GetStringValue("jacobian_approximation", jac_type, "");
   bool finite_diff = jac_type=="finite-difference-values";
 
+  // check the hessian_approximation method
+  std::string hes_type = "";
+  ipopt_app_->Options()->GetStringValue("hessian_approximation", hes_type, "");
+  bool hes_approx = hes_type=="limited-memory";
+
   // convert the NLP problem to Ipopt
-  SmartPtr<TNLP> nlp_ptr = new IpoptAdapter(nlp,finite_diff);
+  SmartPtr<TNLP> nlp_ptr = new IpoptAdapter(nlp,finite_diff,hes_approx);
   status_ = ipopt_app_->OptimizeTNLP(nlp_ptr);
 
   if (status_ != Solve_Succeeded) {

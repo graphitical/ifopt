@@ -40,6 +40,7 @@ public:
   virtual VectorXd GetValues()   const { throw std::runtime_error("not implemented");};
   virtual VecBound GetBounds()   const { throw std::runtime_error("not implemented");};
   virtual Jacobian GetJacobian() const { throw std::runtime_error("not implemented");};
+  virtual Hessian  GetHessian()  const { throw std::runtime_error("not implemented");};
   virtual void SetVariables(const VectorXd& x) {};
 };
 

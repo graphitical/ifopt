@@ -58,6 +58,12 @@ public:
   {
     throw std::runtime_error("not implemented for variables");
   };
+  
+  // doesn't exist for variables, generated run-time error when used.
+  Hessian GetHessian() const final
+  {
+    throw std::runtime_error("not implemented for variables");
+  }
 };
 
 } // namespace ifopt

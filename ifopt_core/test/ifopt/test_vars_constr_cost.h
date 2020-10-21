@@ -145,6 +145,15 @@ public:
       jac_block.coeffRef(0, 1) = 1.0;      // derivative of first constraint w.r.t x1
     }
   }
+
+  void FillHessianBlock (std::string var_set, Hessian& hes_block) const override
+  {
+    if (var_set == "var_set1") {
+      hes_block.coeffRef(0, 0) = 2.0;
+      hes_block.coeffRef(1, 0) = 0.0;
+      hes_block.coeffRef(1, 1) = 0.0;
+    }
+  }
 };
 
 
@@ -166,6 +175,15 @@ public:
 
       jac.coeffRef(0, 0) = 0.0;             // derivative of cost w.r.t x0
       jac.coeffRef(0, 1) = -2.0*(x(1)-2.0); // derivative of cost w.r.t x1
+    }
+  }
+
+  void FillHessianBlock (std::string var_set, Hessian& hes) const override
+  {
+    if (var_set == "var_set1") {
+      hes.coeffRef(0, 0) =  0.0;   // d/dx0 (df/dx0)
+      hes.coeffRef(1, 0) =  0.0;   // d/dx1 (df/dx0)
+      hes.coeffRef(1, 1) = -2.0;   // d/dx1 (df/dx1)
     }
   }
 };

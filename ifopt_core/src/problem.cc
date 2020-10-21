@@ -108,6 +108,21 @@ Problem::EvaluateCostFunctionGradient (const double* x)
   return jac.row(0).transpose();
 }
 
+Problem::Hessian
+Problem::EvaluateCostFunctionHessian (const double* x)
+{
+  int total_n_var = GetNumberOfOptimizationVariables();
+  Hessian hes = Hessian(total_n_var, total_n_var);
+  if (HasCostTerms()) {
+    SetVariables(x);
+    hes = costs_.GetHessian();
+  }
+
+  // TODO: Does this need to be transposed since we're storing only the bottom left triangle?
+  // Hessian assumed to be symmetric so IPOPT only wants the bottom left triangle
+  return hes;
+}
+
 Problem::VecBound
 Problem::GetBoundsOnConstraints () const
 {
@@ -143,6 +158,17 @@ Problem::EvalNonzerosOfJacobian (const double* x, double* values)
   std::copy(jac.valuePtr(), jac.valuePtr() + jac.nonZeros(), values);
 }
 
+void
+Problem::EvalNonzerosOfHessian (const double* x, const double obj_factor,
+                                const double* lambda, double* values)
+{
+  SetVariables(x);
+  Hessian hes = GetHessianOfConstraints();
+
+  hes.makeCompressed(); // so the valuePtr() is dense and accurate
+  std::copy(hes.valuePtr(), hes.valuePtr() + hes.nonZeros(), values);
+}
+
 Problem::Jacobian
 Problem::GetJacobianOfConstraints () const
 {
@@ -153,6 +179,18 @@ Problem::Jacobian
 Problem::GetJacobianOfCosts () const
 {
   return costs_.GetJacobian();
+}
+
+Problem::Hessian
+Problem::GetHessianOfConstraints () const
+{
+  return constraints_.GetHessian();
+}
+
+Problem::Hessian
+Problem::GetHessianOfCosts () const
+{
+  return costs_.GetHessian();
 }
 
 void

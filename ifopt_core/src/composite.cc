@@ -187,6 +187,35 @@ Composite::GetJacobian () const
   return jacobian;
 }
 
+// TODO: Come back and check this 
+Composite::Hessian
+Composite::GetHessian () const
+{
+  int n_var = components_.empty() ? 0 : components_.front()->GetHessian().cols();
+  Hessian hessian(n_var, n_var);
+
+  if (n_var == 0) return hessian;
+
+  int row = 0;
+  std::vector< Eigen::Triplet<double> > triplet_list;
+
+  for (const auto& c : components_) {
+    const Hessian& hes = c->GetHessian();
+    triplet_list.reserve(triplet_list.size()+hes.nonZeros());
+
+    for (int k=0; k<hes.outerSize(); ++k)
+      for (Hessian::InnerIterator it(hes,k); it; ++it)
+        triplet_list.push_back(Eigen::Triplet<double>(row+it.row(), it.col()));
+    
+    if (!is_cost_)
+      row += c->GetRows();
+  }
+
+  // hessian assumed to be only lower triangle of a symmetric matrix
+  hessian.setFromTriplets(triplet_list.begin(), triplet_list.end());
+  return hessian;
+}
+
 Composite::VecBound
 Composite::GetBounds () const
 {

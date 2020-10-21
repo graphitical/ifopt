@@ -77,7 +77,9 @@ else (EIGEN3_INCLUDE_DIR)
         HINTS
         ENV EIGEN3_ROOT 
         ENV EIGEN3_ROOT_DIR
+        ENV EIGEN_DIR
         PATHS
+        ${CMAKE_SOURCE_DIR}/..
         ${CMAKE_INSTALL_PREFIX}/include
         ${KDE4_INCLUDE_DIR}
         PATH_SUFFIXES eigen3 eigen

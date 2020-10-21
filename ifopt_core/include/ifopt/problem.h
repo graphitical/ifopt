@@ -77,6 +77,9 @@ namespace ifopt {
  * information is still valid. These "Jacobian blocks" must be supplied through
  * ConstraintSet::FillJacobianBlock() and are then used to build the complete Jacobian for
  * the cost and constraints.
+ * 
+ * #### GetHessian()
+ * TODO: Fill in for Hessian
  *
  * \image html ifopt.png
  */
@@ -97,6 +100,7 @@ namespace ifopt {
 class Problem {
 public:
   using VecBound = Component::VecBound;
+  using Hessian  = Component::Hessian;
   using Jacobian = Component::Jacobian;
   using VectorXd = Component::VectorXd;
 
@@ -113,7 +117,8 @@ public:
    * This function can be called multiple times, with multiple sets, e.g.
    * one set that parameterizes a body trajectory, the other that resembles
    * the optimal timing values. This function correctly appends the
-   * individual variables sets and ensures correct order of Jacobian columns.
+   * individual variables sets and ensures correct order of Jacobian columns
+   * as well as Hessian row/column pairs.
    */
   void AddVariableSet(VariableSet::Ptr variable_set);
 
@@ -122,8 +127,8 @@ public:
    * @param constraint_set  This can be 1 to infinity number of constraints.
    *
    * This function can be called multiple times for different sets of
-   * constraints. It makes sure the overall constraint and Jacobian correctly
-   * considers all individual constraint sets.
+   * constraints. It makes sure the overall constraint, Jacobian and Hessian 
+   * correctly considers all individual constraint sets.
    */
   void AddConstraintSet(ConstraintSet::Ptr constraint_set);
 
@@ -175,6 +180,11 @@ public:
   VectorXd EvaluateCostFunctionGradient(const double* x);
 
   /**
+   * @brief The matrix of second derivatives of the cost w.r.t. each variable pair.
+   */
+  Hessian EvaluateCostFunctionHessian(const double* x);
+
+  /**
    * @brief The number of individual constraints.
    */
   int GetNumberOfConstraints() const;
@@ -194,10 +204,10 @@ public:
    * @param [in]  x  The current values of the optimization variables.
    * @param [out] values  The nonzero derivatives ordered by Eigen::RowMajor.
    */
-  void EvalNonzerosOfJacobian(const double* x, double* values);
+  void EvalNonzerosOfJacobian(const double* x, double* values); 
 
   /**
-   * @brief The sparse-matrix representation of Jacobian of the constraints.
+   * @brief The sparse-matrix representation of the Jacobian of the constraints.
    *
    * Each row corresponds to a constraint and each column to an optimizaton
    * variable.
@@ -211,6 +221,31 @@ public:
    * to an optimizaton variable.
    */
   Jacobian GetJacobianOfCosts () const;
+
+  /**
+   * @brief Extracts those entries from constraint Hessian that are not zero.
+   * @param [in]  x  The current values of the optimization variables.
+   * @param [in]  obj_factor  The scaling factor for the objective function Hessian
+   * @param [in]  lambda  The lagrange multipliers for the constraint function Hessian(s)
+   * @param [out] values  The nonzero second derivatives ordered by Eigen::RowMajor.
+   */
+  void EvalNonzerosOfHessian(const double* x, const double obj_factor, 
+                             const double* lambda, double* values);
+
+  /**
+   * @brief The sparse-matrix representation of the Hessian of the constraints.
+   * 
+   * Each row/column pair corresponds to an optimization variable pair.
+   */
+  Hessian GetHessianOfConstraints() const;
+
+  /**
+   * @brief The sparse-matrix representation of the Hessian of the costs.
+   * 
+   * Returns a matrix corresponding to the costs with each row/column
+   * pair corresponding to an optimization variable pair.
+   */
+  Hessian GetHessianOfCosts () const;
 
   /**
    * @brief Saves the current values of the optimization variables in x_prev.

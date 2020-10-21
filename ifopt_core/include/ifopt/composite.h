@@ -59,11 +59,13 @@ namespace ifopt {
  * takes care of stacking variables, ordering Jacobians and providing bounds
  * for the complete problem without duplicating code. For more information on
  * the composite pattern visit https://sourcemaking.com/design_patterns/composite
+ * TODO: Modify text for Hessian
  */
 class Component {
 public:
   using Ptr  = std::shared_ptr<Component>;
 
+  using Hessian  = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using VectorXd = Eigen::VectorXd;
   using VecBound = std::vector<Bounds>;
@@ -95,7 +97,7 @@ public:
    *
    * @li For Variable these are the upper and lower variable bound.
    * @li For Constraint this represents the constraint bounds.
-   * @li For Cost these done't exists (set to infinity).
+   * @li For Cost these don't exists (set to infinity).
    */
   virtual VecBound GetBounds() const = 0;
 
@@ -115,6 +117,15 @@ public:
    * @li Not sensible for Variable.
    */
   virtual Jacobian GetJacobian() const = 0;
+
+  /**
+   * @brief  Returns second derivatives of each row w.r.t. the variables
+   * 
+   * @li For Costs this is a matrix of the second derivatives w.r.t. the Variable Sets
+   * @li For Constraint this is a matrix of the second derivaties w.r.t. the Variable Sets
+   * @li Not sensible for Variable
+   */
+  virtual Hessian GetHessian() const = 0;
 
   /**
    * @brief Returns the number of rows of this component.
@@ -171,12 +182,14 @@ public:
    * Constraints and variables append individual constraint sets and Jacobian
    * rows below one another, whereas costs terms are all accumulated to a
    * scalar value/a single Jacobian row.
+   * TODO: Modify text for Hessian
    */
   Composite(const std::string& name, bool is_cost);
   virtual ~Composite() = default;
 
   // see Component for documentation
   VectorXd GetValues   () const override;
+  Hessian  GetHessian  () const override;
   Jacobian GetJacobian () const override;
   VecBound GetBounds   () const override;
   void SetVariables(const VectorXd& x) override;
