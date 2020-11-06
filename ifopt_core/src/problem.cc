@@ -183,7 +183,21 @@ Problem::EvalNonzerosOfHessian (const double* x, const double obj_factor,
   SetVariables(x);
   Hessian cost_hes = GetHessianOfCosts(obj_factor);
   Hessian cons_hes = GetHessianOfConstraints(lambda);
+  std::cout << "EVALUATING HESSIAN NONZEROS\n";
+  
+  // Debug. TODO: Delete
+  // The Hessians should both be n_var by n_var and x should be size n_var
   int n_var = GetNumberOfOptimizationVariables();
+  int n_con = GetNumberOfConstraints();
+  std::cout << "Cost Hes:\n" << cost_hes.toDense() << std::endl
+            << "Cons Hes:\n" << cons_hes.toDense() << std::endl
+            << "obj_factor: " << obj_factor << std::endl;
+
+  for (int i = 0; i < n_var; ++i)
+    std::cout << "var" << i << ": " << x[i] << std::endl;
+  for (int i = 0; i < n_con; ++i)
+    std::cout << "lam" << i << ": " << lambda[i] << std::endl;
+
   assert(n_var == cost_hes.cols() && n_var == cons_hes.cols());
 
   Hessian hes(n_var, n_var);
@@ -199,6 +213,9 @@ Problem::EvalNonzerosOfHessian (const double* x, const double obj_factor,
       triplet_list.push_back(Eigen::Triplet<double>(it.row(), it.col(), it.value()));
 
   hes.setFromTriplets(triplet_list.begin(), triplet_list.end());
+
+  std::cout << "Final Hessian:\n" << hes.toDense() << std::endl;
+
   hes.makeCompressed(); // so the valuePtr() is dense and accurate
   std::copy(hes.valuePtr(), hes.valuePtr() + hes.nonZeros(), values);
 }
@@ -215,16 +232,50 @@ Problem::GetJacobianOfCosts () const
   return costs_.GetJacobian();
 }
 
+// ??? What happens on first pass? What are default lambda values?
+// ??? Instead of returning Hessian, return triplet_list so I can build it all in the EvalNonZerosHessian
 Problem::Hessian
-Problem::GetHessianOfConstraints () const
+Problem::GetHessianOfConstraints (const double* lambda) const
 {
-  return constraints_.GetHessian();
+
+  int n_var = constraints_.GetComponents().empty() ? 0 : constraints_.GetComponents().front()->GetHessian().cols();
+  Hessian hessian(n_var, n_var);
+
+  if (n_var == 0) return hessian;
+
+  // Debug testing. TODO: Delete later
+  int lambda_size = sizeof(*lambda) / sizeof(lambda[0]);
+  assert(lambda_size == constraints_.GetComponents().size());
+
+  int row = 0;
+  int con = 0;
+  std::vector< Eigen::Triplet<double> > triplet_list;
+  double lam = 0.;
+
+  for (const auto& c : constraints_.GetComponents()) {
+    const Hessian& hes = c->GetHessian();
+    triplet_list.reserve(triplet_list.size() + hes.nonZeros());
+
+      if (lambda == nullptr)
+        lam = 1.;
+      else
+        lam = lambda[con];
+
+    for (int k=0; k<hes.outerSize(); ++k)
+      for (Hessian::InnerIterator it(hes,k); it; ++it)
+        triplet_list.push_back(Eigen::Triplet<double>(row+it.row(), it.col(), lam * it.value()));
+
+    row += c->GetRows();
+    con++;
+  }
+  hessian.setFromTriplets(triplet_list.begin(), triplet_list.end());
+  return hessian;
 }
 
 Problem::Hessian
-Problem::GetHessianOfCosts () const
+Problem::GetHessianOfCosts (const double obj_factor) const
 {
-  return costs_.GetHessian();
+  return obj_factor * costs_.GetHessian();
 }
 
 void

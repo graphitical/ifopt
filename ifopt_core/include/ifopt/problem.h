@@ -79,7 +79,7 @@ namespace ifopt {
  * the cost and constraints.
  * 
  * #### GetHessian()
- * TODO: Fill in for Hessian
+ * TODO: Fill text in for Hessian
  *
  * \image html ifopt.png
  */

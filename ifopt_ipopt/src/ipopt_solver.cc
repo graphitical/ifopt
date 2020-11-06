@@ -52,7 +52,7 @@ IpoptSolver::IpoptSolver()
   SetOption("max_cpu_time", 40.0);
   SetOption("tol", 0.001);
   SetOption("print_timing_statistics", "no");
-  SetOption("print_user_options", "no");
+  SetOption("print_user_options", "yes");
   SetOption("print_level", 4);
 
   // SetOption("max_iter", 1);

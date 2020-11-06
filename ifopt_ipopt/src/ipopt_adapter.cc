@@ -40,6 +40,9 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 {
   n = nlp_->GetNumberOfOptimizationVariables();
   m = nlp_->GetNumberOfConstraints();
+  std::cout << "GET NLP INFO\n"
+            << "Num vars: " << n << std::endl
+            << "Num cons: " << m << std::endl;
 
   if (finite_diff_)
     nnz_jac_g = m*n;
