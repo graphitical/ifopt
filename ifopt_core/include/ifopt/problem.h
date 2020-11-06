@@ -237,7 +237,7 @@ public:
    * 
    * Each row/column pair corresponds to an optimization variable pair.
    */
-  Hessian GetHessianOfConstraints() const;
+  Hessian GetHessianOfConstraints(const double* lambda = nullptr) const;
 
   /**
    * @brief The sparse-matrix representation of the Hessian of the costs.
@@ -245,7 +245,7 @@ public:
    * Returns a matrix corresponding to the costs with each row/column
    * pair corresponding to an optimization variable pair.
    */
-  Hessian GetHessianOfCosts () const;
+  Hessian GetHessianOfCosts (const double obj_factor = 1) const;
 
   /**
    * @brief Saves the current values of the optimization variables in x_prev.

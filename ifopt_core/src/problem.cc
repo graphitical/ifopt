@@ -181,8 +181,24 @@ Problem::EvalNonzerosOfHessian (const double* x, const double obj_factor,
                                 const double* lambda, double* values)
 {
   SetVariables(x);
-  Hessian hes = GetHessianOfConstraints();
+  Hessian cost_hes = GetHessianOfCosts(obj_factor);
+  Hessian cons_hes = GetHessianOfConstraints(lambda);
+  int n_var = GetNumberOfOptimizationVariables();
+  assert(n_var == cost_hes.cols() && n_var == cons_hes.cols());
 
+  Hessian hes(n_var, n_var);
+  std::vector< Eigen::Triplet<double> > triplet_list;
+  triplet_list.reserve(cost_hes.nonZeros() + cons_hes.nonZeros());
+
+  for (int k=0; k<cost_hes.outerSize(); ++k)
+    for (Hessian::InnerIterator it(cost_hes,k); it; ++it)
+      triplet_list.push_back(Eigen::Triplet<double>(it.row(), it.col(), it.value()));
+
+  for (int k=0; k<cons_hes.outerSize(); ++k)
+    for (Hessian::InnerIterator it(cons_hes,k); it; ++it)
+      triplet_list.push_back(Eigen::Triplet<double>(it.row(), it.col(), it.value()));
+
+  hes.setFromTriplets(triplet_list.begin(), triplet_list.end());
   hes.makeCompressed(); // so the valuePtr() is dense and accurate
   std::copy(hes.valuePtr(), hes.valuePtr() + hes.nonZeros(), values);
 }

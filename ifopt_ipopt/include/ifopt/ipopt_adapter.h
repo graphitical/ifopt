@@ -103,7 +103,6 @@ private:
                           Index m, Index nele_hes, Index* iRow, Index *jCol,
                           double* values);
 
-  // TODO: Check and make sure this is correct
   /** Method to return:
    *   1) The structure of the hessian (if "values" is NULL)
    *   2) The values of the hessian (if "values" is not NULL)

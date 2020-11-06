@@ -155,21 +155,44 @@ bool IpoptAdapter::eval_h(Index n, const double* x, bool new_x, double obj_facto
                           Index nele_hess, Index* iRow, Index* jCol,
                           double* values)
 {
-  if (hes_approx_) return false; // Not using exact Hessian
-
-  if (values == NULL) {
-  Index nele=0;
-  // Need to cycle through constraint Hessians to set non zeros??
-  auto hes = nlp_->GetHessianOfCosts();
-  for (int k=0; k<hes.outerSize(); ++k) {
-    for (Hessian::InnerIterator it(hes,k); it; ++it) {
-      iRow[nele] = it.row();
-      jCol[nele] = it.col();
-      nele++;
-    }
+  // This is copied from eval_h defintion in IpTNLP.hpp, line 472
+  if (hes_approx_) { // Not using exact Hessian
+    (void) n;
+    (void) x;
+    (void) new_x;
+    (void) obj_factor;
+    (void) m;
+    (void) lambda;
+    (void) new_lambda;
+    (void) nele_hess;
+    (void) iRow;
+    (void) jCol;
+    (void) values;
+    return false;
   }
 
-  assert(nele == nele_hess);
+  // defines the positions of the nonzero elements of the hessian
+  if (values == NULL) {
+    Index nele=0;
+    auto hes = nlp_->GetHessianOfCosts();
+    for (int k=0; k<hes.outerSize(); ++k) {
+      for (Hessian::InnerIterator it(hes,k); it; ++it) {
+        iRow[nele] = it.row();
+        jCol[nele] = it.col();
+        nele++;
+      }
+    }
+
+    hes = nlp_->GetHessianOfConstraints();
+    for (int k=0; k<hes.outerSize(); ++k) {
+      for (Hessian::InnerIterator it(hes,k); it; ++it) {
+        iRow[nele] = it.row();
+        jCol[nele] = it.col();
+        nele++;
+      }
+    }
+
+    assert(nele == nele_hess);
   }
   else {
     // TODO: Need to account for obj_factor multiplier by objective function and lambda values by constraints

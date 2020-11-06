@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 Copyright (c) 2017, Alexander W Winkler. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -187,7 +187,9 @@ Composite::GetJacobian () const
   return jacobian;
 }
 
-// TODO: Come back and check this 
+// // ??? Change this to return a list to build later?
+// // As is I'm returning a lot of Hessians to just put
+// // them back together
 Composite::Hessian
 Composite::GetHessian () const
 {
@@ -205,7 +207,7 @@ Composite::GetHessian () const
 
     for (int k=0; k<hes.outerSize(); ++k)
       for (Hessian::InnerIterator it(hes,k); it; ++it)
-        triplet_list.push_back(Eigen::Triplet<double>(row+it.row(), it.col()));
+        triplet_list.push_back(Eigen::Triplet<double>(row+it.row(), it.col(), it.value()));
     
     if (!is_cost_)
       row += c->GetRows();
