@@ -128,6 +128,7 @@ Composite::GetComponent (std::string name) const
     if (c->GetName() == name)
       return c;
 
+  std::cerr << "Component with name " << name << " doesn't exist\n";
   assert(false); // component with name doesn't exist, abort program
   return Component::Ptr();
 }
@@ -193,6 +194,7 @@ Composite::GetJacobian () const
 Composite::Hessian
 Composite::GetHessian () const
 {
+  std::cout << "GETTING HESSIAN\n";
   int n_var = components_.empty() ? 0 : components_.front()->GetHessian().cols();
   Hessian hessian(n_var, n_var);
 
@@ -200,13 +202,12 @@ Composite::GetHessian () const
 
   int row = 0;
   std::vector< Eigen::Triplet<double> > triplet_list;
-
   for (const auto& c : components_) {
     const Hessian& hes = c->GetHessian();
     triplet_list.reserve(triplet_list.size()+hes.nonZeros());
 
     for (int k=0; k<hes.outerSize(); ++k)
-      for (Hessian::InnerIterator it(hes,k); it; ++it)
+      for (Hessian::InnerIterator it(hes,k); it; ++it) 
         triplet_list.push_back(Eigen::Triplet<double>(row+it.row(), it.col(), it.value()));
     
     if (!is_cost_)

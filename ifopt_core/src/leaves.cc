@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 Copyright (c) 2017, Alexander W Winkler. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -138,7 +138,7 @@ CostTerm::Print (double tol, int& index) const
   // only one scalar cost value
   double cost = GetValues()(0);
 
-  std::cout.precision(2);
+  std::cout.precision(tol);
   std::cout << std::fixed
             << std::left
             << std::setw(30) << GetName()

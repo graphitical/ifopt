@@ -1,6 +1,7 @@
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(Eigen3 REQUIRED)
 
+add_compile_options(-Wall -Wextra -Werror -pedantic)
 
 ###########
 ## Build ##
