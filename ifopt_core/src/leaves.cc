@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
 Copyright (c) 2017, Alexander W Winkler. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,7 @@ ConstraintSet::GetJacobian () const
 ConstraintSet::Hessian
 ConstraintSet::GetHessian () const
 {
+  std::cout << "FILL HESSIAN\n";
   const int n_var = variables_->GetRows();
   Hessian hessian(n_var, n_var);
 
@@ -104,6 +105,7 @@ ConstraintSet::GetHessian () const
 
   // transform triplet vector into sparse matrix
   hessian.setFromTriplets(triplet_list.begin(), triplet_list.end());
+  std::cout << "DONE FILLING HESSIAN\n";
   return hessian;
 }
 

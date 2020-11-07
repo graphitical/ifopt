@@ -226,11 +226,13 @@ public:
    * @brief Extracts those entries from constraint Hessian that are not zero.
    * @param [in]  x  The current values of the optimization variables.
    * @param [in]  obj_factor  The scaling factor for the objective function Hessian
+   * @param [in]  new_lambda  False if any evalution method was called with same values of lambda. True otherwise
    * @param [in]  lambda  The lagrange multipliers for the constraint function Hessian(s)
    * @param [out] values  The nonzero second derivatives ordered by Eigen::RowMajor.
    */
   void EvalNonzerosOfHessian(const double* x, const double obj_factor, 
-                             const double* lambda, double* values);
+                             const bool new_lambda, const double* lambda, 
+                             double* values);
 
   /**
    * @brief The sparse-matrix representation of the Hessian of the constraints.
@@ -245,7 +247,7 @@ public:
    * Returns a matrix corresponding to the costs with each row/column
    * pair corresponding to an optimization variable pair.
    */
-  Hessian GetHessianOfCosts (const double obj_factor = 1) const;
+  Hessian GetHessianOfCosts (const double obj_factor = 1.) const;
 
   /**
    * @brief Saves the current values of the optimization variables in x_prev.

@@ -40,9 +40,6 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 {
   n = nlp_->GetNumberOfOptimizationVariables();
   m = nlp_->GetNumberOfConstraints();
-  std::cout << "GET NLP INFO\n"
-            << "Num vars: " << n << std::endl
-            << "Num cons: " << m << std::endl;
 
   if (finite_diff_)
     nnz_jac_g = m*n;
@@ -177,7 +174,7 @@ bool IpoptAdapter::eval_h(Index n, const double* x, bool new_x, double obj_facto
   // defines the positions of the nonzero elements of the hessian
   if (values == NULL) {
     Index nele=0;
-    auto hes = nlp_->GetHessianOfCosts();
+    auto hes = nlp_->GetHessianOfCosts(obj_factor);
     for (int k=0; k<hes.outerSize(); ++k) {
       for (Hessian::InnerIterator it(hes,k); it; ++it) {
         iRow[nele] = it.row();
@@ -186,7 +183,7 @@ bool IpoptAdapter::eval_h(Index n, const double* x, bool new_x, double obj_facto
       }
     }
 
-    hes = nlp_->GetHessianOfConstraints();
+    hes = nlp_->GetHessianOfConstraints(lambda);
     for (int k=0; k<hes.outerSize(); ++k) {
       for (Hessian::InnerIterator it(hes,k); it; ++it) {
         iRow[nele] = it.row();
@@ -200,7 +197,7 @@ bool IpoptAdapter::eval_h(Index n, const double* x, bool new_x, double obj_facto
   else {
     // TODO: Need to account for obj_factor multiplier by objective function and lambda values by constraints
     // Also need to only capture bottom left values
-    nlp_->EvalNonzerosOfHessian(x, obj_factor, lambda, values);
+    nlp_->EvalNonzerosOfHessian(x, obj_factor, new_lambda, lambda, values);
   }
 
   return true;

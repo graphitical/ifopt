@@ -19,6 +19,8 @@ int main()
     IpoptSolver ipopt;
     ipopt.SetOption("linear_solver","mumps");
     ipopt.SetOption("jacobian_approximation", "exact");
+    ipopt.SetOption("hessian_approximation", "exact");
+    nlp.PrintCurrent();
 
     // 3. Solve
     ipopt.Solve(nlp);

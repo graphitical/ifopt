@@ -8,11 +8,14 @@
  *
  *  The example problem to be solved is given as:
  *
- *      min_x f(x) = x0*x3 * (x0 + x1 + x2) + x2
+ *      min_x f(x) = x1*x4 * (x1 + x2 + x3) + x3
  *      s.t.
- *          x0*x1*x2*x3 >= 25
- *          x0^2 + x1^2 + x2^2 + x3^2 = 40
- *          1 <= x0, x1, x2, x3 <= 5
+ *          x1*x2*x3*x4 >= 25
+ *          x1^2 + x2^2 + x3^2 + x4^2 = 40
+ *          1 <= x1, x2, x3, x4 <= 5
+ * 
+ *          x_start = (1, 5, 5, 1)
+ *          x* = (1.0000, 4.74300, 3.82115, 1.37941)
  * 
  * In this simple example we use one set of variables, two constraints and one
  * cost; however, most real world problems have multiple different constraints
@@ -103,6 +106,21 @@ public:
         }
     }
 
+    void FillHessianBlock (std::string var_set, Hessian& hes_block) const override
+    {
+        if (var_set == "var_set1") {
+            Vector4d x = GetVariables()->GetComponent("var_set1")->GetValues();
+            int n = x.size();
+
+            hes_block.coeffRef(1,0) = x(2) * x(3);
+            hes_block.coeffRef(2,0) = x(1) * x(3);
+            hes_block.coeffRef(2,1) = x(0) * x(3);
+            hes_block.coeffRef(3,0) = x(1) * x(2);
+            hes_block.coeffRef(3,1) = x(0) * x(2);
+            hes_block.coeffRef(3,2) = x(0) * x(1);
+        }
+        
+    }
 };
 
 
@@ -137,6 +155,15 @@ public:
         }
     }
 
+    void FillHessianBlock (std::string var_set, Hessian& hes_block) const override
+    {
+        if (var_set == "var_set1") {
+            Vector4d x = GetVariables()->GetComponent("var_set1")->GetValues();
+
+            for (int i = 0; i < x.size(); ++i)
+                hes_block.coeffRef(i,i) = 2.;
+        }
+    }
 };
 
 
@@ -160,6 +187,19 @@ public:
             jac.coeffRef(0,1) = x(0)*x(3);
             jac.coeffRef(0,2) = x(0)*x(3) + 1.;
             jac.coeffRef(0,3) = x(0) * (x(0) + x(1) + x(2));
+        }
+    }
+    void FillHessianBlock (std::string var_set, Hessian& hes) const override
+    {
+        if (var_set == "var_set1") {
+            Vector4d x = GetVariables()->GetComponent("var_set1")->GetValues();
+
+            hes.coeffRef(0,0) = 2. * x(3);
+            hes.coeffRef(1,0) = x(3);
+            hes.coeffRef(2,0) = x(3);
+            hes.coeffRef(3,0) = 2.*x(0) + x(1) + x(2);
+            hes.coeffRef(3,1) = x(0);
+            hes.coeffRef(3,2) = x(0);
         }
     }
 
