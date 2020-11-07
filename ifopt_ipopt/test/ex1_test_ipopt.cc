@@ -28,7 +28,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/problem.h>
 #include <ifopt/ipopt_solver.h>
-#include <ifopt/test_vars_constr_cost.h>
+#include <ifopt/test1_vars_constr_cost.h>
 
 using namespace ifopt;
 

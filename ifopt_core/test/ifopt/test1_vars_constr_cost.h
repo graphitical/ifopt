@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 /**
- *  @file test_vars_constr_cost.h
+ *  @file test1_vars_constr_cost.h
  *
  *  @brief Example to generate a solver-independent formulation for the problem, taken
  *  from the IPOPT cpp_example.

@@ -32,24 +32,28 @@ target_compile_definitions(${LIB_IPOPT}
     ${IPOPT_DEFINITIONS}
 )
 
-
 #############
 ## Testing ##
 #############
-add_executable(${LIB_IPOPT}-example test/ex_test_ipopt.cc)
-target_link_libraries(${LIB_IPOPT}-example 
-  PRIVATE 
-    ${LIB_IPOPT}
-)
-add_test(${LIB_IPOPT}-example ${LIB_IPOPT}-example)
+set( TEST_FILES test/ex1_test_ipopt.cc
+                test/ex2_test_ipopt.cc)
 
+foreach( TEST_FILE ${TEST_FILES} )
+  get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+  add_executable(${LIB_IPOPT}-${TEST_NAME} ${TEST_FILE})
+  target_link_libraries( ${LIB_IPOPT}-${TEST_NAME}
+  PRIVATE 
+      ${LIB_IPOPT}
+  )
+  add_test( ${LIB_IPOPT}-${TEST_NAME} ${LIB_IPOPT}-${TEST_NAME})
+  endforeach( TEST_FILE ${TEST_FILES})
 
 #############
 ## Install ##
 #############
  # Copy library files to usr/local/lib/libifopt_ipopt.so
 install(
-  TARGETS ${LIB_IPOPT} ${LIB_IPOPT}-example
+  TARGETS ${LIB_IPOPT} ${LIB_IPOPT}-ex1_test_ipopt ${LIB_IPOPT}-ex2_test_ipopt
   EXPORT  ${LIB_IPOPT}-targets
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -40,7 +40,7 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ifopt
 )
 install(
-  FILES test/ifopt/test_vars_constr_cost.h
+  DIRECTORY test/ifopt/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ifopt
 )
 # Generate the find scripts
