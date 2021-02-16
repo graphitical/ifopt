@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include <ifopt/problem.h>
 #include <ifopt/ipopt_solver.h>
@@ -22,6 +23,7 @@ int main()
     ipopt.SetOption("hessian_approximation", "exact");
     nlp.PrintCurrent();
 
+    std::cout << std::setprecision(5);
     // 3. Solve
     ipopt.Solve(nlp);
     Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
@@ -29,6 +31,9 @@ int main()
 
     // 4. Test if solution is correct
     double eps = 1e-3; // double precision
-    Eigen::Vector4d solution(1.0, 4.74300, 3.82115, 1.37941);
-    assert((x-solution).norm() < eps);
+    Eigen::Vector4d sol(1.0, 4.74299963, 3.82114998, 1.37940829);
+    assert(sol(0)-eps < x(0) && x(0) < sol(0)+eps);
+    assert(sol(1)-eps < x(1) && x(1) < sol(1)+eps);
+    assert(sol(2)-eps < x(2) && x(2) < sol(2)+eps);
+    assert(sol(3)-eps < x(3) && x(3) < sol(3)+eps);
 }
