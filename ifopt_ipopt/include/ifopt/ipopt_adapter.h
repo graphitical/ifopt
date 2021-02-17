@@ -100,7 +100,7 @@ private:
    *   2) The values of the jacobian (if "values" is not NULL)
    */
   virtual bool eval_jac_g(Index n, const double* x, bool new_x,
-                          Index m, Index nele_hes, Index* iRow, Index *jCol,
+                          Index m, Index nele_jac, Index* iRow, Index *jCol,
                           double* values);
 
   /** Method to return:

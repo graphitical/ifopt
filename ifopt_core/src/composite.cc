@@ -188,13 +188,12 @@ Composite::GetJacobian () const
   return jacobian;
 }
 
-// // ??? Change this to return a list to build later?
-// // As is I'm returning a lot of Hessians to just put
-// // them back together
+// ??? Change this to return a list to build later?
+// As is I'm returning a lot of Hessians to just put
+// them back together
 Composite::Hessian
 Composite::GetHessian () const
 {
-  std::cout << "GETTING HESSIAN\n";
   int n_var = components_.empty() ? 0 : components_.front()->GetHessian().cols();
   Hessian hessian(n_var, n_var);
 
@@ -214,7 +213,7 @@ Composite::GetHessian () const
       row += c->GetRows();
   }
 
-  // hessian assumed to be only lower triangle of a symmetric matrix
+  // Hessian assumed to be only lower triangle of a symmetric matrix
   hessian.setFromTriplets(triplet_list.begin(), triplet_list.end());
   return hessian;
 }
