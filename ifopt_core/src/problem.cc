@@ -181,6 +181,7 @@ Problem::EvalNonzerosOfHessian (const double* x, const double obj_factor,
                                 const bool new_lambda, const double* lambda,
                                 double* values)
 {
+  (void) new_lambda;
   SetVariables(x);
   Hessian hes = GetTotalHessian(obj_factor, lambda);
 
