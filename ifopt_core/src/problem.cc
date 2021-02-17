@@ -182,42 +182,7 @@ Problem::EvalNonzerosOfHessian (const double* x, const double obj_factor,
                                 double* values)
 {
   SetVariables(x);
-  Hessian cost_hes = GetHessianOfCosts(obj_factor);
-  // TODO: Do something with new_lambda so we don't have to recalculate constraints every time
-  Hessian cons_hes = GetHessianOfConstraints(lambda);
-  std::cout << "EVALUATING HESSIAN NONZEROS\n";
-  
-  // Debug. TODO: Delete
-  // The Hessians should both be n_var by n_var and x should be size n_var
-  int n_var = GetNumberOfOptimizationVariables();
-  int n_con = GetNumberOfConstraints();
-  std::cout << "Cost Hes:\n" << cost_hes.toDense() << std::endl;
-
-  for (int i = 0; i < n_var; ++i)
-    std::cout << "var" << i << ": " << x[i] << std::endl;
-
-  std::cout << "Cons Hes:\n" << cons_hes.toDense() << std::endl
-            << "new_lambda: " << new_lambda << "\n";
-  for (int i = 0; i < n_con; ++i)
-    std::cout << "lam" << i << ": " << lambda[i] << std::endl;
-
-  assert(n_var == cost_hes.cols() && n_var == cons_hes.cols());
-
-  Hessian hes(n_var, n_var);
-  std::vector< Eigen::Triplet<double> > triplet_list;
-  triplet_list.reserve(cost_hes.nonZeros() + cons_hes.nonZeros());
-
-  for (int k=0; k<cost_hes.outerSize(); ++k)
-    for (Hessian::InnerIterator it(cost_hes,k); it; ++it)
-      triplet_list.push_back(Eigen::Triplet<double>(it.row(), it.col(), it.value()));
-
-  for (int k=0; k<cons_hes.outerSize(); ++k)
-    for (Hessian::InnerIterator it(cons_hes,k); it; ++it)
-      triplet_list.push_back(Eigen::Triplet<double>(it.row(), it.col(), it.value()));
-
-  hes.setFromTriplets(triplet_list.begin(), triplet_list.end());
-
-  std::cout << "Final Hessian:\n" << hes.toDense() << std::endl;
+  Hessian hes = GetTotalHessian(obj_factor, lambda);
 
   hes.makeCompressed(); // so the valuePtr() is dense and accurate
   std::copy(hes.valuePtr(), hes.valuePtr() + hes.nonZeros(), values);
@@ -240,8 +205,6 @@ Problem::GetJacobianOfCosts () const
 Problem::Hessian
 Problem::GetHessianOfConstraints (const double* lambda) const
 {
-  std::cout << "GET CONSTRAINT HESSIAN\n";
-
   int n_var = constraints_.GetComponents().empty() ? 0 : constraints_.GetComponents().front()->GetHessian().cols();
   Hessian hessian(n_var, n_var);
 
@@ -268,19 +231,20 @@ Problem::GetHessianOfConstraints (const double* lambda) const
     con++;
   }
   hessian.setFromTriplets(triplet_list.begin(), triplet_list.end());
-  std::cout << "DONE WITH THE CONSTRAINT HESSIAN\n";
+
   return hessian;
 }
 
 Problem::Hessian
 Problem::GetHessianOfCosts (const double obj_factor) const
 {
-  std::cout << "GET COST HESSIAN\n";
-  // return obj_factor * costs_.GetHessian();
-  // TODO: Change back to line above
-  Hessian hes = obj_factor * costs_.GetHessian();
-  std::cout << "DONE WITH COST HESSIAN\n";
-  return hes;
+  return obj_factor * costs_.GetHessian();
+}
+
+Problem::Hessian
+Problem::GetTotalHessian (const double obj_factor, const double* lambda) const
+{
+  return GetHessianOfCosts(obj_factor) + GetHessianOfConstraints(lambda);
 }
 
 void

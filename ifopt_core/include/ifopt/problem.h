@@ -250,6 +250,12 @@ public:
   Hessian GetHessianOfCosts (const double obj_factor = 1.) const;
 
   /**
+   * @brief The sparse-matrix representation of the Hessian of costs and constraints.
+   * 
+  */
+  Hessian GetTotalHessian (const double obj_factor = 1., const double* lambda = nullptr) const;
+
+  /**
    * @brief Saves the current values of the optimization variables in x_prev.
    *
    * This is used to keep a history of the values for each NLP iterations.
