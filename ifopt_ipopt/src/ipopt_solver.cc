@@ -56,8 +56,7 @@ IpoptSolver::IpoptSolver()
   SetOption("print_level", 4);
 
   // SetOption("max_iter", 1);
-  // SetOption("derivative_test", "first-order");
-  // SetOption("derivative_test_tol", 1e-3);
+  // SetOption("derivative_test", "second-order");
 }
 
 void
