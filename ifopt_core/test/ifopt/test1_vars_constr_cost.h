@@ -151,8 +151,6 @@ public:
   {
     if (var_set == "var_set1") {
       hes_block.coeffRef(0, 0) = 2.0;
-      hes_block.coeffRef(1, 0) = 0.0;
-      hes_block.coeffRef(1, 1) = 0.0;
     }
   }
 };
@@ -182,8 +180,6 @@ public:
   void FillHessianBlock (std::string var_set, Hessian& hes) const override
   {
     if (var_set == "var_set1") {
-      hes.coeffRef(0, 0) =  0.0;   // d/dx0 (df/dx0)
-      hes.coeffRef(1, 0) =  0.0;   // d/dx1 (df/dx0)
       hes.coeffRef(1, 1) = -2.0;   // d/dx1 (df/dx1)
     }
   }

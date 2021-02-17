@@ -47,14 +47,10 @@ int main()
   ipopt.SetOption("jacobian_approximation", "exact");
   ipopt.SetOption("hessian_approximation", "exact");
   ipopt.SetOption("check_derivatives_for_naninf","yes");
-  std::cout <<"BEGINNING OF PROGRAM 1\n";
 
   Eigen::VectorXd vars = nlp.GetVariableValues();
-  std::cout << "vars:\n" << vars << std::endl;
   Composite::Hessian cost_hes = nlp.GetHessianOfCosts();
-  std::cout << "Cost Hessian:\n" << cost_hes.toDense() << std::endl;
   Composite::Hessian cons_hes = nlp.GetHessianOfConstraints();
-  std::cout << "Cons Hessian:\n" << cons_hes.toDense() << std::endl;
 
   // 3 . solve
   ipopt.Solve(nlp);
