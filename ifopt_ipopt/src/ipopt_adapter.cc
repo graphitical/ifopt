@@ -49,7 +49,7 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   if (hes_approx_)
     nnz_h_lag = n*n;
   else
-    nnz_h_lag = nlp_->GetHessianOfConstraints().nonZeros() + nlp_->GetHessianOfCosts().nonZeros();
+    nnz_h_lag = nlp_->GetTotalHessian().nonZeros();
 
   // start index at 0 for row/col entries
   index_style = C_STYLE;
@@ -174,7 +174,7 @@ bool IpoptAdapter::eval_h(Index n, const double* x, bool new_x, double obj_facto
   // defines the positions of the nonzero elements of the hessian
   if (values == NULL) {
     Index nele=0;
-    auto hes = nlp_->GetHessianOfCosts(obj_factor);
+    auto hes = nlp_->GetTotalHessian();
     for (int k=0; k<hes.outerSize(); ++k) {
       for (Hessian::InnerIterator it(hes,k); it; ++it) {
         iRow[nele] = it.row();
@@ -182,20 +182,9 @@ bool IpoptAdapter::eval_h(Index n, const double* x, bool new_x, double obj_facto
         nele++;
       }
     }
-
-    hes = nlp_->GetHessianOfConstraints(lambda);
-    for (int k=0; k<hes.outerSize(); ++k) {
-      for (Hessian::InnerIterator it(hes,k); it; ++it) {
-        iRow[nele] = it.row();
-        jCol[nele] = it.col();
-        nele++;
-      }
-    }
-
     assert(nele == nele_hess);
   }
   else {
-    // TODO: Need to account for obj_factor multiplier by objective function and lambda values by constraints
     // Also need to only capture bottom left values
     nlp_->EvalNonzerosOfHessian(x, obj_factor, new_lambda, lambda, values);
   }
